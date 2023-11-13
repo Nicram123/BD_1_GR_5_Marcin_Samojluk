@@ -1,0 +1,248 @@
+SCHEMAT dodałem do bazy danych ale ręcznie , bez użycia kodu
+
+/*CREATE TABLE pracownicy (
+    id_pracownika SERIAL PRIMARY KEY,
+    imie VARCHAR(20) NOT NULL,
+    nazwisko VARCHAR(20) NOT NULL,
+    adres TEXT NOT NULL,  -- Użyto typu danych TEXT dla pola adres
+    telefon VARCHAR(15) NOT NULL  -- Użyto VARCHAR z ograniczeniem długości dla pola telefon
+);
+
+CREATE TABLE godziny (
+    id_godziny SERIAL PRIMARY KEY,
+    data DATE NOT NULL,  -- Użyto typu danych DATE dla pola data
+    liczba_godzin INT NOT NULL,  -- Użyto typu danych INTEGER dla liczby godzin
+    id_pracownika INT REFERENCES pracownicy(id_pracownika)  -- Klucz obcy do pracownicy
+);
+
+CREATE TABLE pensja (
+    id_pensji SERIAL PRIMARY KEY,
+    stanowisko VARCHAR(20) NOT NULL,
+    kwota DECIMAL(10, 2) NOT NULL  -- Użyto typu danych DECIMAL(10, 2) dla kwoty, co umożliwia przechowywanie liczb zmiennoprzecinkowych
+);
+
+CREATE TABLE premia (
+    id_premii SERIAL PRIMARY KEY,
+    rodzaj VARCHAR(20) NOT NULL,
+    kwota DECIMAL(10, 2)  -- Użyto typu danych DECIMAL(10, 2) dla kwoty premii
+);
+
+CREATE TABLE wynagrodzenie (
+    id_wynagrodzenia SERIAL PRIMARY KEY,
+    data DATE NOT NULL,  -- Użyto typu danych DATE dla pola data
+    id_pracownika INT REFERENCES pracownicy(id_pracownika),
+    id_pensji INT REFERENCES pensja(id_pensji),
+    id_premii INT REFERENCES premia(id_premii)
+);*/
+
+
+-- Wypełnienie tabeli 'pracownicy'
+/*INSERT INTO pracownicy (imie, nazwisko, adres, telefon) VALUES
+('Jan', 'Kowalski', 'ul. Przykładowa 1', '123-456-7890'),
+('Anna', 'Nowak', 'ul. Inna 2', '987-654-3210'),
+('Piotr', 'Wiśniewski', 'ul. Prosta 3', '111-222-3333'),
+('Katarzyna', 'Dąbrowska', 'ul. Szybka 4', '444-555-6666'),
+('Tomasz', 'Lewandowski', 'ul. Wolna 5', '777-888-9999'),
+('Agnieszka', 'Kaczmarek', 'ul. Malinowa 6', '123-789-4560'),
+('Marcin', 'Zieliński', 'ul. Radosna 7', '987-654-3211'),
+('Magdalena', 'Szymańska', 'ul. Piękna 8', '111-222-3334'),
+('Krzysztof', 'Woźniak', 'ul. Zadowolona 9', '444-555-6667'),
+('Monika', 'Krajewska', 'ul. Serdeczna 10', '777-888-9990');
+
+-- Wypełnienie tabeli 'godziny'
+INSERT INTO godziny (data, liczba_godzin, id_pracownika) VALUES
+('2023-01-01', 180, 1),
+('2023-01-02', 170, 2),
+('2023-01-03', 160, 3),
+('2023-01-04', 150, 4),
+('2023-01-05', 175, 5),
+('2023-01-06', 195, 6),
+('2023-01-07', 180, 7),
+('2023-01-08', 170, 8),
+('2023-01-09', 150, 9),
+('2023-01-10', 140, 10);
+
+-- Wypełnienie tabeli 'pensja'
+INSERT INTO pensja (stanowisko, kwota) VALUES
+('Specjalista', 5000.00),
+('Kierownik', 7000.00),
+('Analityk', 4500.00),
+('Programista', 6000.00),
+('Analityk', 4000.00),
+('Projektant', 5500.00),
+('Tester', 4800.00),
+('Tester', 5200.00),
+('Architekt', 6500.00),
+('Konsultant', 5300.00);
+
+-- Wypełnienie tabeli 'premia'
+INSERT INTO premia (rodzaj, kwota) VALUES
+('Stała', 1000.00),
+('Miesięczna', 800.00),
+('Roczna', 2000.00),
+('Brak', 0.00),
+('Kwartalna', 1200.00),
+('Dodatkowa', 500.00),
+('Motywacyjna', 1500.00),
+('Specjalna', 900.00),
+('Premia 13', 1300.00),
+('Inna', 700.00);
+
+-- Wypełnienie tabeli 'wynagrodzenie'
+INSERT INTO wynagrodzenie (data, id_pracownika,id_pensji, id_premii) VALUES
+('2023-01-01', 1, 1, 1),
+('2023-01-02', 1, 2, 2),
+('2023-01-03', 3, 2, 3),
+('2023-01-04', 4, 4, 4),
+('2023-01-05', 5, 5, 5),
+('2023-01-06', 6, 6, 6),
+('2023-01-07', 7, 7, 7),
+('2023-01-08', 8, 8, 8),
+('2023-01-09', 9, 9, NULL),
+('2023-01-10', 10, 10, NULL);*/
+
+/*1*/
+SELECT id_pracownika,nazwisko FROM pracownicy;
+
+/*2*/
+SELECT id_pracownika FROM wynagrodzenie
+WHERE id_pensji IN(
+SELECT id_pensji FROM pensja
+WHERE kwota > 1000
+);
+
+/*3*/
+SELECT id_pracownika FROM wynagrodzenie
+WHERE id_pensji IN(
+SELECT id_pensji FROM pensja
+WHERE kwota > 2000
+)AND id_premii IS NULL;
+
+/*4*/
+SELECT CONCAT(imie,' ',nazwisko) AS pracownicy FROM pracownicy
+WHERE imie LIKE'J%';
+
+/*5*/
+SELECT CONCAT(imie,' ',nazwisko) AS pracownicy FROM pracownicy
+WHERE imie LIKE'%a' AND nazwisko LIKE'%n%' OR nazwisko LIKE'%N%';
+
+/*6*/
+SELECT imie, nazwisko, SUM(liczba_godzin - 160) AS nadgodziny
+FROM pracownicy
+JOIN godziny ON pracownicy.id_pracownika = godziny.id_pracownika
+GROUP BY imie, nazwisko;
+
+
+/*7*/
+SELECT CONCAT(imie,' ',nazwisko) AS pracownicy FROM pracownicy
+WHERE id_pracownika IN(SELECT id_pracownika 
+FROM wynagrodzenie
+WHERE id_pensji IN (
+SELECT id_pensji FROM pensja
+WHERE kwota BETWEEN 1500 AND 3000
+)
+);
+
+/*8*/
+
+SELECT imie,nazwisko FROM wynagrodzenie
+JOIN premia ON premia.id_premii = wynagrodzenie.id_premii
+JOIN godziny ON godziny.id_pracownika = wynagrodzenie.id_pracownika
+JOIN pracownicy ON pracownicy.id_pracownika = wynagrodzenie.id_pracownika
+GROUP BY imie,nazwisko
+HAVING SUM(liczba_godzin -160) > 0;
+
+
+
+
+/*9*/
+
+WITH A AS(
+SELECT imie,nazwisko,id_pensji FROM pracownicy
+JOIN wynagrodzenie
+ON pracownicy.id_pracownika = wynagrodzenie.id_pracownika)
+SELECT imie,nazwisko,kwota FROM A
+JOIN pensja
+ON A.id_pensji = pensja.id_pensji
+ORDER BY kwota;
+
+
+
+/*10*/
+
+WITH A AS(
+SELECT imie,nazwisko,id_pensji,id_premii FROM pracownicy
+JOIN wynagrodzenie
+ON pracownicy.id_pracownika = wynagrodzenie.id_pracownika),
+C AS(
+SELECT imie,nazwisko,kwota AS premia,id_pensji FROM A
+JOIN premia
+ON A.id_premii = premia.id_premii)
+SELECT imie,nazwisko,premia,kwota FROM C
+JOIN pensja
+ON C.id_pensji = pensja.id_pensji
+ORDER BY kwota DESC,premia DESC;
+
+
+/*11*/
+
+WITH TAB AS (
+    SELECT imie, nazwisko, id_pensji FROM pracownicy
+    JOIN wynagrodzenie ON pracownicy.id_pracownika = wynagrodzenie.id_pracownika
+)
+SELECT stanowisko, COUNT(stanowisko) AS ilosc FROM TAB
+JOIN pensja ON pensja.id_pensji = TAB.id_pensji
+GROUP BY stanowisko;
+
+
+
+/*12*/ 
+
+SELECT MIN(kwota) AS min_placa,
+MAX(kwota) AS max_placa,
+AVG(kwota) AS srednia FROM pensja
+JOIN wynagrodzenie
+ON wynagrodzenie.id_pensji = pensja.id_pensji
+WHERE stanowisko = 'Kierownik'
+GROUP BY stanowisko;
+
+
+/*13*/
+
+SELECT SUM(p.kwota),SUM(r.kwota) AS premia FROM wynagrodzenie
+JOIN pensja p
+ON p.id_pensji = wynagrodzenie.id_pensji
+JOIN premia r
+ON r.id_premii = wynagrodzenie.id_premii;
+
+/*14*/
+
+
+SELECT stanowisko, SUM(kwota) AS suma_wynagrodzen
+FROM pensja
+GROUP BY stanowisko;
+
+/*15*/
+
+SELECT COUNT(id_premii) AS ilosc_premii
+FROM wynagrodzenie
+JOIN pensja
+ON pensja.id_pensji = wynagrodzenie.id_pensji
+JOIN pracownicy
+ON pracownicy.id_pracownika = wynagrodzenie.id_pracownika
+GROUP BY wynagrodzenie.id_pensji;
+
+
+
+
+/*16*/
+
+DELETE FROM pracownicy
+WHERE id_pracownika IN (
+    SELECT id_pracownika
+    FROM wynagrodzenie
+    JOIN pensja ON wynagrodzenie.id_pensji = pensja.id_pensji
+    WHERE kwota < 1200
+);
+
+
