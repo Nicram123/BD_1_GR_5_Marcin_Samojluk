@@ -1,0 +1,30 @@
+-- a) Modyfikacja numeru telefonu
+UPDATE ksiegowosc.pracownicy SET telefon = CONCAT('(+48) ', telefon);
+
+-- b) Modyfikacja formatu numeru telefonu
+UPDATE ksiegowosc.pracownicy SET telefon = CONCAT(SUBSTRING(telefon, 1, 3), '-', SUBSTRING(telefon, 4, 3), '-', SUBSTRING(telefon, 7, 3));
+
+-- c) Wyświetlenie danych pracownika z najdłuższym nazwiskiem
+SELECT * FROM ksiegowosc.pracownicy ORDER BY LENGTH(nazwisko) DESC LIMIT 1;
+
+-- d) Wyświetlenie danych pracowników i ich pensji zakodowanych przez MD5
+SELECT p.imie, p.nazwisko, MD5(CAST(ps.kwota AS TEXT)) AS pensja_md5
+FROM ksiegowosc.pracownicy p
+JOIN ksiegowosc.wynagrodzenie w ON p.id_pracownika = w.id_pracownika
+JOIN ksiegowosc.pensja ps ON w.id_pensji = ps.id_pensji;
+
+-- e) Wyświetlenie pracowników, ich pensji i premii (złączenie lewostronne)
+SELECT p.imie, p.nazwisko, ps.kwota AS pensja, pr.kwota AS premia
+FROM ksiegowosc.pracownicy p
+LEFT JOIN ksiegowosc.wynagrodzenie w ON p.id_pracownika = w.id_pracownika
+LEFT JOIN ksiegowosc.pensja ps ON w.id_pensji = ps.id_pensji
+LEFT JOIN ksiegowosc.premia pr ON w.id_premii = pr.id_premii;
+
+
+--f)
+SELECT CONCAT('Pracownik ', p.imie, ' ', p.nazwisko, ', w dniu ', w.data, ' otrzymał pensję całkowitą na kwotę ', 
+ (ps.kwota + pr.kwota) , ' zł, gdzie wynagrodzenie zasadnicze wynosiło: ', ps.kwota, ' zł, premia: ', pm.kwota, ' zł')
+FROM ksiegowosc.pracownicy p
+JOIN ksiegowosc.wynagrodzenie w ON p.id_pracownika = w.id_pracownika
+JOIN ksiegowosc.pensja ps ON w.id_pensji = ps.id_pensji
+JOIN ksiegowosc.premia pm ON w.id_premii = pm.id_premii;
