@@ -1,0 +1,26 @@
+/*zadanie 1*/
+
+SELECT e.rate AS highest_rate, p.businessentityid AS id,
+       CONCAT(p.firstname, ' ' ,p.lastname) AS name
+FROM person.person p
+JOIN humanresources.employeepayhistory e ON p.businessentityid = e.businessentityid
+WHERE e.rate = (
+    SELECT MAX(rate) AS highest_rate
+    FROM humanresources.employeepayhistory
+);
+
+
+/*zadanie 2*/
+WITH Tab AS (
+SELECT businessentityid,firstname,lastname 
+FROM person.person)
+
+SELECT cus.customerid,cus.territoryid AS customerterritoryid,
+CONCAT(t.firstname,' ',t.lastname) AS salespersoninthisterritory
+FROM Tab t
+JOIN sales.salesperson sal
+ON sal.businessentityid = t.businessentityid
+JOIN sales.salesterritory salt
+ON salt.territoryid = sal.territoryid
+JOIN sales.customer cus
+ON cus.territoryid = salt.territoryid; 
