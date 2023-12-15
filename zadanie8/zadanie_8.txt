@@ -1,5 +1,6 @@
 /*zadanie 1*/
 
+WITH TempEmployeeInfo AS(
 SELECT e.rate AS highest_rate, p.businessentityid AS id,
        CONCAT(p.firstname, ' ' ,p.lastname) AS name
 FROM person.person p
@@ -7,8 +8,10 @@ JOIN humanresources.employeepayhistory e ON p.businessentityid = e.businessentit
 WHERE e.rate = (
     SELECT MAX(rate) AS highest_rate
     FROM humanresources.employeepayhistory
-);
+)
+)
 
+SELECT * FROM TempEmployeeInfo
 
 /*zadanie 2*/
 WITH Tab AS (
