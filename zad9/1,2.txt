@@ -1,0 +1,61 @@
+--1
+
+-- Plan wykonania wykorzystuje metodę Seq Scan dla tabeli customer - czyli skanowanie sekwencyjne, co oznacza, że baza danych przegląda wszystkie wiersze, aby znaleźć pasujące do warunku (territoryid = 5).
+-- Wykonanie zapytania zajęło około 19.343 ms.
+-- Filtracja wierszy w tabeli customer po territoryid wymagała przeglądnięcia dużej liczby wierszy (Rows Removed by Filter: 19644), co może oznaczać, że duża część danych nie spełnia warunku filtrującego.
+-- Po utworzeniu indeksów:
+
+-- Plan wykonania wykorzystuje teraz Bitmap Heap Scan oraz Bitmap Index Scan dla tabeli customer, co sugeruje wykorzystanie indeksu idx_territoryid.
+-- Czas wykonania znacznie się skrócił do około 5.623 ms.
+-- Zastosowanie indeksu spowodowało, że baza danych skorzystała z bardziej zoptymalizowanego sposobu przeszukiwania danych, używając indeksu do szybkiego odnalezienia wierszy spełniających warunek territoryid = 5.
+
+
+-- Różnica w wydajności wynikała głównie z wykorzystania indeksu. 
+
+-- Przed utworzeniem indeksów baza danych musiała przeszukać wszystkie wiersze w tabeli customer, co jest czasochłonnym procesem, zwłaszcza gdy tabela zawiera dużą ilość danych. Po utworzeniu indeksu idx_territoryid na kolumnie territoryid, baza danych mogła skorzystać z optymalizowanej metody wyszukiwania, używając indeksu do szybkiego odnalezienia wierszy spełniających warunek territoryid = 5. To spowodowało znaczną poprawę wydajności zapytania, skracając czas potrzebny do znalezienia odpowiednich danych.
+
+
+--2
+
+--a
+
+BEGIN;
+UPDATE production.product p
+SET listPrice = listPrice * 1.1
+WHERE p.productid = 680;
+COMMIT;
+
+SELECT productid,listPrice FROM production.product
+WHERE productid = 680;
+
+
+--b
+
+BEGIN;
+DELETE FROM production.product
+WHERE productid = 707;
+ROLLBACK;
+
+
+--c
+
+BEGIN;
+INSERT INTO production.product (name, productnumber, makeflag, finishedgoodsflag, color, safetystocklevel,
+                                reorderpoint, standardcost, listprice, size, sizeunitmeasurecode,
+                                weightunitmeasurecode, weight, daystomanufacture, productline, class, 
+                                style, productsubcategoryid, productmodelid, sellstartdate, sellenddate, 
+                                discontinueddate, rowguid, modifieddate)
+VALUES ('Nowy', 'NP1', FALSE, TRUE, 'silver', 10, 8, 2, 2, 'M', 'CM', 'LB', 16, 4, 
+        'R', 'M', 'W', 10, 10, '2014-02-08 10:01:36.827', '2014-02-08 10:01:36.827', 
+        '2014-02-08 10:01:36.827', '694215b7-08f7-4c0d-acb1-d734ba44c0c8', '2014-02-08 10:01:36.827'); 
+COMMIT;
+
+
+SELECT name FROM production.product
+WHERE name = 'Nowy';
+
+
+
+
+
+
